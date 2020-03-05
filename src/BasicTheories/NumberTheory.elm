@@ -30,9 +30,8 @@ module BasicTheories.NumberTheory exposing
     , provePositive
     , proveZeroOrGreater
 
-# Functions
-@docs head, nonEmptyListMap
-
+# Implications
+@docs allPositivesAreZeroOrGreater
 -}
 import RefinementProofs
     exposing

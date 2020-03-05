@@ -21,7 +21,7 @@ module BasicTheories.StringTheory exposing
     , proveTrimmedString
 
 # Functions
-@docs lengthOfNonEmptyString, nonEmptyListMap
+@docs lengthOfNonEmptyString
 
 -}
 import BasicTheories.NumberTheory
