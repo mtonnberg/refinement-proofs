@@ -8,6 +8,18 @@ module BasicTheories.ListTheory exposing
     , nonEmptyListMap
     )
 
+{-| Some basic list proofs
+
+# Definition
+@docs NonEmptyList, SortedList
+
+# Proofs
+@docs proveNonEmptyList,mkSortedList
+
+# Functions
+@docs head, nonEmptyListMap
+
+-}
 import BasicTheories.NumberTheory
     exposing
         ( Positive

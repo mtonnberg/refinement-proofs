@@ -5,7 +5,7 @@ module BasicTheories.NumberTheory exposing
     , Positive
     , Zero
     , ZeroOrGreater
-    , allPositiveAreNatural
+    , allPositivesAreZeroOrGreater
     , proveEven
     , proveNegative
     , proveOdd
@@ -13,6 +13,27 @@ module BasicTheories.NumberTheory exposing
     , proveZeroOrGreater
     )
 
+{-| Some basic number proofs
+
+# Definition
+@docs Even
+    , Negative
+    , Odd
+    , Positive
+    , Zero
+    , ZeroOrGreater
+
+# Proofs
+@docs proveEven
+    , proveNegative
+    , proveOdd
+    , provePositive
+    , proveZeroOrGreater
+
+# Functions
+@docs head, nonEmptyListMap
+
+-}
 import RefinementProofs
     exposing
         ( Implies
@@ -27,30 +48,44 @@ import RefinementProofs
         )
 
 
+{-| Basic logic
+-}
 type Positive
     = Positive
 
 
+{-| Basic logic
+-}
 type Zero
     = Zero
 
 
+{-| Basic logic
+-}
 type alias ZeroOrGreater =
     Or Zero Positive
 
 
+{-| Basic logic
+-}
 type alias Negative =
     Not ZeroOrGreater
 
 
+{-| Basic logic
+-}
 type Even
     = Even
 
 
+{-| Basic logic
+-}
 type alias Odd =
     Not Even
 
 
+{-| Basic logic
+-}
 proveZero : number -> Maybe (Proven number Zero)
 proveZero x =
     if x == 0 then
@@ -60,6 +95,8 @@ proveZero x =
         Nothing
 
 
+{-| Basic logic
+-}
 provePositive : number -> Maybe (Proven number Positive)
 provePositive x =
     if x > 0 then
@@ -69,16 +106,22 @@ provePositive x =
         Nothing
 
 
+{-| Basic logic
+-}
 proveZeroOrGreater : number -> Maybe (Proven number ZeroOrGreater)
 proveZeroOrGreater =
     makeOr proveZero provePositive
 
 
+{-| Basic logic
+-}
 proveNegative : number -> Maybe (Proven number Negative)
 proveNegative =
     inverse proveZeroOrGreater
 
 
+{-| Basic logic
+-}
 proveEven : Int -> Maybe (Proven Int Even)
 proveEven x =
     if modBy 2 x == 0 then
@@ -88,11 +131,15 @@ proveEven x =
         Nothing
 
 
+{-| Basic logic
+-}
 proveOdd : Int -> Maybe (Proven Int Odd)
 proveOdd =
     inverse proveEven
 
 
-allPositiveAreNatural : Implies Positive ZeroOrGreater
-allPositiveAreNatural =
+{-| Basic logic
+-}
+allPositivesAreZeroOrGreater : Implies Positive ZeroOrGreater
+allPositivesAreZeroOrGreater =
     imply Positive (or Zero Positive)
