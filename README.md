@@ -1,31 +1,8 @@
-module BasicTheories.FootballTheory exposing
-    ( 
-        FootballTeam
-        , FootballField
-        , Judge
-    )
+In a nutshell:
+Refinement types in Elm
 
-import RefinementProofs
-    exposing
-        ( Proven(..)
-        , axiom
-        , absurd
-        , And
-        , exorcise
-        , makeAnd
-        )
-    
-import BasicTheories.NumberTheory exposing
-    ( Positive
-    , provePositive
-    )
-import BasicTheories.StringTheory exposing
-    ( NonEmptyTrimmedString
-    )
-import BasicTheories.ListTheory exposing
-    ( NonEmptyList
-    )
-
+example:
+```elm
 type alias FootballTeam = {
     teamName : Proven String NonEmptyTrimmedString
     , teamManager : Proven String  NonEmptyTrimmedString
@@ -55,3 +32,5 @@ proveVerifiedTeam team =
         "Barcelona" -> Just <| axiom VerifiedTeam team
         "Göteborgs IF" -> Just <| axiom VerifiedTeam team
         _ -> Nothing
+
+```
