@@ -34,7 +34,6 @@ import RefinementProofs
         ( Proven(..)
         , axiom
         , exorcise
-        , evaluate
         )
 
 

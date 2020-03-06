@@ -17,7 +17,6 @@ module RefinementProofs exposing
     , makeAnd
     , makeOr
     , modusPonens
-    ,evaluate
     , modusTollens
     , not
     , or
@@ -40,10 +39,6 @@ module RefinementProofs exposing
 @docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply
 
 -}
-
-type alias Evaluation = String
-evaluate : (Evaluation -> a) -> a
-evaluate f = f "trick"
 
 {-| A value "a" that is proven to hold the property "b"
 -}
