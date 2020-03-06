@@ -40,25 +40,25 @@ import RefinementProofs
         )
 
 
-{-| Basic logic
+{-| A non-empty string
 -}
 type NonEmptyString
     = NonEmptyString
 
 
-{-| Basic logic
+{-| A Trimmed string
 -}
 type TrimmedString
     = TrimmedString
 
 
-{-| Basic logic
+{-| A string that are both nonEmpty and trimmed, alias for "And NonEmptyString TrimmedString"
 -}
 type alias NonEmptyTrimmedString =
     And NonEmptyString TrimmedString
 
 
-{-| Basic logic
+{-| Prove that a string is non-empty
 -}
 proveNonEmptyString : String -> Maybe (Proven String NonEmptyString)
 proveNonEmptyString x =
@@ -69,14 +69,14 @@ proveNonEmptyString x =
         Nothing
 
 
-{-| Basic logic
+{-| Make a trimmed string from a string. Note: will trim a non-trimmed string
 -}
 mkTrimmedString : String -> Proven String TrimmedString
 mkTrimmedString =
     axiom TrimmedString << String.trim
 
 
-{-| Basic logic
+{-| Prove that a string is trimmed
 -}
 proveTrimmedString : String -> Maybe (Proven String TrimmedString)
 proveTrimmedString x =
@@ -87,14 +87,14 @@ proveTrimmedString x =
         Nothing
 
 
-{-| Basic logic
+{-| Prove that a string is both non-empty and trimmed
 -}
 proveNonEmptyTrimmedString : String -> Maybe (Proven String NonEmptyTrimmedString)
 proveNonEmptyTrimmedString =
     makeAnd proveNonEmptyString proveTrimmedString
 
 
-{-| Basic logic
+{-| Get the length of a non-empty string
 -}
 lengthOfNonEmptyString : Proven String NonEmptyString -> Proven Int Positive
 lengthOfNonEmptyString =

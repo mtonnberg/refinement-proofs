@@ -47,43 +47,43 @@ import RefinementProofs
         )
 
 
-{-| Basic logic
+{-| A positive number
 -}
 type Positive
     = Positive
 
 
-{-| Basic logic
+{-| A number that is Zero
 -}
 type Zero
     = Zero
 
 
-{-| Basic logic
+{-| type alias for `Or Zero Positive`. If used with an Int this the number is 0,1,2,3,....
 -}
 type alias ZeroOrGreater =
     Or Zero Positive
 
 
-{-| Basic logic
+{-| A negative number. Alias for `Not ZeroOrGreater`
 -}
 type alias Negative =
     Not ZeroOrGreater
 
 
-{-| Basic logic
+{-| An even Int
 -}
 type Even
     = Even
 
 
-{-| Basic logic
+{-| alias for `Not Even`
 -}
 type alias Odd =
     Not Even
 
 
-{-| Basic logic
+{-| Prove that a number equals to zero
 -}
 proveZero : number -> Maybe (Proven number Zero)
 proveZero x =
@@ -94,7 +94,7 @@ proveZero x =
         Nothing
 
 
-{-| Basic logic
+{-| Prove that a number is positive (>0)
 -}
 provePositive : number -> Maybe (Proven number Positive)
 provePositive x =
@@ -105,21 +105,21 @@ provePositive x =
         Nothing
 
 
-{-| Basic logic
+{-| Prove that a number is either zero or greater
 -}
 proveZeroOrGreater : number -> Maybe (Proven number ZeroOrGreater)
 proveZeroOrGreater =
     makeOr proveZero provePositive
 
 
-{-| Basic logic
+{-| Prove a number is negative
 -}
 proveNegative : number -> Maybe (Proven number Negative)
 proveNegative =
-    inverse proveZeroOrGreater
+    inverse (or Zero Positive) proveZeroOrGreater
 
 
-{-| Basic logic
+{-| Prove that a number is even
 -}
 proveEven : Int -> Maybe (Proven Int Even)
 proveEven x =
@@ -130,14 +130,16 @@ proveEven x =
         Nothing
 
 
-{-| Basic logic
+{-| Prove that a number is odd
 -}
 proveOdd : Int -> Maybe (Proven Int Odd)
 proveOdd =
-    inverse proveEven
+    inverse Even proveEven
 
 
-{-| Basic logic
+{-| A simple implication.
+    Note this is strictly not needed since this implication is clear in the types - `ZeroOrGreater = Or Zero Positive`.
+    An alternative is to use `introOrL` or `or`.
 -}
 allPositivesAreZeroOrGreater : Implies Positive ZeroOrGreater
 allPositivesAreZeroOrGreater =

@@ -10,8 +10,6 @@ module RefinementProofs exposing
     , axiom
     , elimAndL
     , elimAndR
-    , elimOrL
-    , elimOrR
     , exorcise
     , imply
     , introOrL
@@ -23,12 +21,11 @@ module RefinementProofs exposing
     , modusTollens
     , not
     , or
-    , provenOrInversed
     , since
     , sinceNot
     )
 
-{-| This library allows for stronger types in Elm for both library writer and end users
+{-| This library allows for stronger and more refined types in Elm for both library writer and end users.
 
 # Definition
 @docs Proven
@@ -47,47 +44,51 @@ module RefinementProofs exposing
 
 {-| A value "a" that is proven to hold the property "b"
 -}
-type Proven a b
+type Proven a p
     = Proven a
 
 
 {-| A negation of a proof
 -}
-type Not a
+type Not p
     = Not
 
 
 {-| Exlusive or
 -}
-type alias XOr a b =
-    Or (And a (Not b)) (And (Not a) b)
+type alias XOr p1 p2 =
+    Or (And p1 (Not p2)) (And (Not p1) p2)
 
 
-{-| Implies that if "a" holds than "b" holds
+{-| Implies that if "p1" holds than "p2" holds
 -}
-type Implies a b
+type Implies p1 p2
     = Implies
 
 
-{-| Both "a" and "b" holds
+{-| Both "p1" and "p2" holds
 -}
-type And a b
+type And p1 p2
     = And
 
 
-{-| "a" or "b" holds
+{-| "p1" or "p2" holds
 -}
-type Or a b
+type Or p1 p2
     = Or
 
 
-{-| Used by library writers to create axioms with non-exported constructors
+{-| Used by library writers to create axioms with non-exported constructors.
+    Remember, the library/module constructors must not be exported!
 -}
 axiom : p -> a -> Proven a p
 axiom _ x =
     Proven x
 
 
+{-| DANGER ZONE!
+    Used internally by this module only to prove general logic. Must never be exported and used with extreme care!
+-}
 axiomInternal : a -> Proven a b
 axiomInternal x =
     Proven x
@@ -114,35 +115,21 @@ not _ =
     Not
 
 
-{-| Basic logic
+{-| If a is proven to hold property p1 then classic logic gives that a holds either p1 or p2
 -}
 introOrR : Proven a p1 -> Proven a (Or p1 p2)
 introOrR (Proven x) =
     axiomInternal x
 
 
-{-| Basic logic
+{-| Same as introOrR but introduces the p2 on the other side
 -}
 introOrL : Proven a p1 -> Proven a (Or p2 p1)
 introOrL =
     axiomInternal << exorcise
 
 
-{-| Basic logic
--}
-elimOrR : Proven a (Or b c) -> Proven a b
-elimOrR =
-    axiomInternal << exorcise
-
-
-{-| Basic logic
--}
-elimOrL : Proven a (Or b c) -> Proven a c
-elimOrL =
-    axiomInternal << exorcise
-
-
-{-| A convience method to check two proofs at once
+{-| A convience method to check two proofs at once for And
 -}
 makeAnd : (a -> Maybe (Proven a b)) -> (a -> Maybe (Proven a c)) -> a -> Maybe (Proven a (And b c))
 makeAnd f g x =
@@ -155,7 +142,7 @@ makeAnd f g x =
 
 
 
-{-| A convience method to check two proofs
+{-| A convience method to check two proofs for Or
 -}
 makeOr : (a -> Maybe (Proven a b)) -> (a -> Maybe (Proven a c)) -> a -> Maybe (Proven a (Or b c))
 makeOr f g x =
@@ -170,22 +157,10 @@ makeOr f g x =
             Nothing
 
 
-{-| Basic logic
+{-| Used by library writers to show that when `p1` does not hold for a then `Not p1` holds.
 -}
-provenOrInversed : (a -> Maybe (Proven a p1)) -> a -> Result (Proven a (Not p1)) (Proven a p1)
-provenOrInversed f x =
-    case f x of
-        Just r ->
-            Ok r
-
-        Nothing ->
-            Err <| axiomInternal x
-
-
-{-| Basic logic
--}
-inverse : (a -> Maybe (Proven a p1)) -> a -> Maybe (Proven a (Not p1))
-inverse f x =
+inverse : p1 -> (a -> Maybe (Proven a p1)) -> a -> Maybe (Proven a (Not p1))
+inverse _ f x =
     case f x of
         Just _ ->
             Nothing
@@ -194,48 +169,48 @@ inverse f x =
             Just <| axiomInternal x
 
 
-{-| Basic logic
+{-| Remove the left hand side of an And proof
 -}
 elimAndL : Proven a (And b c) -> Proven a b
 elimAndL =
     axiomInternal << exorcise
 
 
-{-| Basic logic
+{-| Remove the right hand side of an And proof
 -}
 elimAndR : Proven a (And b c) -> Proven a c
 elimAndR =
     axiomInternal << exorcise
 
-{-| Extract the actual value and remove the proof
+{-| Extract the actual value and remove the proof. This is always safe and a library writer should always expect and allow its users to do this.
 -}
 exorcise : Proven a b -> a
 exorcise (Proven x) =
     x
 
 
-{-| Basic logic
+{-| If a library implies that when p1 holds the p2 holds then you have proven p2 by prove p1
 -}
 modusPonens : Implies p1 p2 -> Proven a p1 -> Proven a p2
 modusPonens _ =
     axiomInternal << exorcise
 
 
-{-| Synonym for "modus ponens"
+{-| Synonym for "modus ponens". If a library implies that when p1 holds the p2 holds then you have proven p2 by prove p1
 -}
 since : Implies p1 p2 -> Proven a p1 -> Proven a p2
 since =
     modusPonens
 
 
-{-| Basic logic
+{-| If a library implies that when p1 holds the p2 holds then you have proven (Not p2) by prove (Not p1)
 -}
 modusTollens : Implies p1 p2 -> Proven a (Not p1) -> Proven a (Not p2)
 modusTollens _ =
     axiomInternal << exorcise
 
 
-{-| Synonym for "modus tollens" 
+{-| Synonym for "modus tollens". If a library implies that when p1 holds the p2 holds then you have proven (Not p2) by prove (Not p1)
 -}
 sinceNot : Implies p1 p2 -> Proven a (Not p1) -> Proven a (Not p2)
 sinceNot =
@@ -249,7 +224,9 @@ imply _ _ =
     Implies
 
 
-{-| Used by library writers to carefully ignore "impossible" states
+{-| Used by library writers to carefully ignore "impossible" states.
+    Note use this with extreme care since this will cause a runtime exception if ever evaluated!
+    Remember that Elm is an eager language and not lazy.
 -}
 absurd : a
 absurd =

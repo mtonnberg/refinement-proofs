@@ -38,19 +38,19 @@ import RefinementProofs
         )
 
 
-{-| Basic logic
+{-| A non-empty list
 -}
 type NonEmptyList
     = NonEmptyList
 
 
-{-| Basic logic
+{-| A sorted list
 -}
 type SortedList
     = SortedList
 
 
-{-| Basic logic
+{-| Prove that a list is non-empty
 -}
 proveNonEmptyList : List a -> Maybe (Proven (List a) NonEmptyList)
 proveNonEmptyList x =
@@ -61,14 +61,14 @@ proveNonEmptyList x =
         Nothing
 
 
-{-| Basic logic
+{-| Make a sorted list.
 -}
 mkSortedList : List comparable -> Proven (List comparable) SortedList
 mkSortedList =
     axiom SortedList << List.sort
 
 
-{-| Basic logic
+{-| Safely get a head of a non-empty list
 -}
 head : Proven (List a) NonEmptyList -> a
 head xs =
@@ -80,14 +80,14 @@ head xs =
             x
 
 
-{-| Basic logic
+{-| Map over a non-empty list
 -}
 nonEmptyListMap : (a -> b) -> Proven (List a) NonEmptyList -> Proven (List b) NonEmptyList
 nonEmptyListMap f xs =
     axiom NonEmptyList <| List.map f <| exorcise xs
 
 
-{-| Basic logic
+{-| Get the length of a non-empty list
 -}
 lengthOfNonEmptyList : Proven (List a) NonEmptyList -> Proven Int Positive
 lengthOfNonEmptyList =
