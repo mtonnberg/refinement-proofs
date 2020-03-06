@@ -1,6 +1,7 @@
 module BasicTheories.StringTheory exposing
     ( NonEmptyString
     , NonEmptyTrimmedString
+    , TrimmedString
     , lengthOfNonEmptyString
     , mkTrimmedString
     , proveNonEmptyString
@@ -12,6 +13,7 @@ module BasicTheories.StringTheory exposing
 
 # Definition
 @docs NonEmptyString
+    , TrimmedString
     , NonEmptyTrimmedString
 
 # Proofs
