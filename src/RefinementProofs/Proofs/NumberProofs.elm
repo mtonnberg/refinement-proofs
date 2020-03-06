@@ -1,4 +1,4 @@
-module BasicTheories.NumberTheory exposing
+module RefinementProofs.Proofs.NumberProofs exposing
     ( Even
     , Negative
     , Odd
@@ -33,7 +33,7 @@ module BasicTheories.NumberTheory exposing
 # Implications
 @docs allPositivesAreZeroOrGreater
 -}
-import RefinementProofs
+import RefinementProofs.Theory
     exposing
         ( Implies
         , Not

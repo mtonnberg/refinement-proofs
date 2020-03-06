@@ -1,4 +1,4 @@
-module BasicTheories.ListTheory exposing
+module RefinementProofs.Proofs.ListProofs exposing
     ( NonEmptyList, SortedList
     , proveNonEmptyList, mkSortedList
     , head, nonEmptyListMap
@@ -24,12 +24,12 @@ module BasicTheories.ListTheory exposing
 
 -}
 
-import BasicTheories.NumberTheory
+import RefinementProofs.Proofs.NumberProofs
     exposing
         ( Positive
         , provePositive
         )
-import RefinementProofs
+import RefinementProofs.Theory
     exposing
         ( Proven(..)
         , axiom

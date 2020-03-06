@@ -1,4 +1,4 @@
-module RefinementProofs exposing
+module RefinementProofs.Theory exposing
     ( And
     , Implies
     , Not
@@ -77,7 +77,7 @@ type Or p1 p2
 
 
 {-| Used by library writers to create axioms with non-exported constructors.
-    Remember, the library/module constructors must not be exported!
+    Remember, the library/module RefinementProofs.constructors must not be exported!
 -}
 axiom : p -> a -> Proven a p
 axiom _ x =
@@ -85,7 +85,7 @@ axiom _ x =
 
 
 {-| DANGER ZONE!
-    Used internally by this module only to prove general logic. Must never be exported and used with extreme care!
+    Used internally by this module RefinementProofs.only to prove general logic. Must never be exported and used with extreme care!
 -}
 axiomInternal : a -> Proven a b
 axiomInternal x =

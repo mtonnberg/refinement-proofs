@@ -1,25 +1,22 @@
-module BasicTests exposing (suite)
+module RefinementProofs.BasicTests exposing (suite)
 
 import Expect
 import Fuzz
 import Test exposing (Test, describe, fuzz, test)
 
-import BasicTheories.NumberTheory
+import RefinementProofs.Proofs.NumberProofs
     exposing
         ( Positive
         , provePositive
         )
 
-import BasicTheories.ListTheory
+import RefinementProofs.Proofs.ListProofs
     exposing
         ( proveNonEmptyList
         )
-import RefinementProofs
+import RefinementProofs.Theory
     exposing
         ( Proven(..)
-        , axiom
-        , exorcise
-        , evaluate
         )
 
 suite : Test
@@ -29,5 +26,5 @@ suite =
             test "head of nonemptylist should work" <|
                 \_ ->
                     Expect.equal 1 <|
-                    Maybe.withDefault -1 <| Maybe.map (\x -> BasicTheories.ListTheory.head x) <| proveNonEmptyList [1,2,3]
+                    Maybe.withDefault -1 <| Maybe.map (\x -> RefinementProofs.Proofs.ListProofs.head x) <| proveNonEmptyList [1,2,3]
         ]

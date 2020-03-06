@@ -1,4 +1,4 @@
-module BasicTheories.StringTheory exposing
+module RefinementProofs.Proofs.StringProofs exposing
     ( NonEmptyString
     , NonEmptyTrimmedString
     , TrimmedString
@@ -26,12 +26,12 @@ module BasicTheories.StringTheory exposing
 @docs lengthOfNonEmptyString
 
 -}
-import BasicTheories.NumberTheory
+import RefinementProofs.Proofs.NumberProofs
     exposing
         ( Positive
         , provePositive
         )
-import RefinementProofs
+import RefinementProofs.Theory
     exposing
         ( And
         , Proven(..)
