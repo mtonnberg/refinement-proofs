@@ -37,7 +37,7 @@ module RefinementProofs exposing
 @docs axiom, or, and, not
 
 # Logic operators
-@docs introOrR, introOrL, elimOrR, elimOrL, makeOr, makeAnd, provenOrInversed, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply, absurd
+@docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply, absurd
 
 -}
 
