@@ -32,9 +32,9 @@ import BasicTheories.NumberTheory
 import RefinementProofs
     exposing
         ( Proven(..)
-        , absurd
         , axiom
         , exorcise
+        , evaluate
         )
 
 
@@ -74,10 +74,12 @@ head : Proven (List a) NonEmptyList -> a
 head xs =
     case exorcise xs of
         [] ->
-            absurd
+            Debug.todo "absurd" 
 
         x :: _ ->
             x
+
+
 
 
 {-| Map over a non-empty list
@@ -90,5 +92,7 @@ nonEmptyListMap f xs =
 {-| Get the length of a non-empty list
 -}
 lengthOfNonEmptyList : Proven (List a) NonEmptyList -> Proven Int Positive
-lengthOfNonEmptyList =
-    Maybe.withDefault absurd << provePositive << List.length << exorcise
+lengthOfNonEmptyList x =
+    case provePositive << List.length <| exorcise x of
+        Just p -> p
+        Nothing -> Debug.todo "absurd" 

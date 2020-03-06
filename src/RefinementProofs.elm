@@ -5,7 +5,6 @@ module RefinementProofs exposing
     , Or
     , Proven
     , XOr
-    , absurd
     , and
     , axiom
     , elimAndL
@@ -18,6 +17,7 @@ module RefinementProofs exposing
     , makeAnd
     , makeOr
     , modusPonens
+    ,evaluate
     , modusTollens
     , not
     , or
@@ -37,10 +37,13 @@ module RefinementProofs exposing
 @docs axiom, or, and, not
 
 # Logic operators
-@docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply, absurd
+@docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply
 
 -}
 
+type alias Evaluation = String
+evaluate : (Evaluation -> a) -> a
+evaluate f = f "trick"
 
 {-| A value "a" that is proven to hold the property "b"
 -}
@@ -222,12 +225,3 @@ sinceNot =
 imply : p1 -> p2 -> Implies p1 p2
 imply _ _ =
     Implies
-
-
-{-| Used by library writers to carefully ignore "impossible" states.
-    Note use this with extreme care since this will cause a runtime exception if ever evaluated!
-    Remember that Elm is an eager language and not lazy.
--}
-absurd : a
-absurd =
-    Debug.todo "absurd, this should never happen. If it does the library used is doing something horribly wrong. Please check your proofs"

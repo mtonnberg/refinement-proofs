@@ -33,7 +33,6 @@ import RefinementProofs
     exposing
         ( And
         , Proven(..)
-        , absurd
         , axiom
         , exorcise
         , makeAnd
@@ -97,5 +96,7 @@ proveNonEmptyTrimmedString =
 {-| Get the length of a non-empty string
 -}
 lengthOfNonEmptyString : Proven String NonEmptyString -> Proven Int Positive
-lengthOfNonEmptyString =
-    Maybe.withDefault absurd << provePositive << String.length << exorcise
+lengthOfNonEmptyString x =
+    case provePositive << String.length <| exorcise x of
+        Just p -> p
+        Nothing ->  Debug.todo "absurd" 
