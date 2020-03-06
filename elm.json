@@ -1,11 +1,9 @@
 {
     "type": "package",
-
     "name": "mtonnberg/refinement-proofs",
     "summary": "Refinement types in elm",
     "license": "BSD-3-Clause",
-
-    "version": "1.1.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "BasicTheories.StringTheory",
         "BasicTheories.ListTheory",
