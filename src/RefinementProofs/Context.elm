@@ -11,8 +11,10 @@ module RefinementProofs.Context exposing
     , provenForVersion
     , incVersion
     , initialVersion
+    , unwrapContext
     , proveSameContext
     , provenForContext
+    , provenForContextValue
     , specificContext
     , proveSameVersion
     )
@@ -49,28 +51,27 @@ module RefinementProofs.Context exposing
     , proveSameVersion
 
 # Context
-Context is more generalized data type that `Version` is based upon. This is useful if a specific comparable
+Context is more generalized data type that `Version` is based upon. This is useful if a specific v
 is prefered or needed instead of just a 'random' number.
 
 For example: 
-    ```elm
-        type alias Ears = Int 
-        For AnimalName String (Proven Ears Positive)```
+    type alias Ears = Int 
+    For AnimalName String (Proven Ears Positive)
 Which would mean that for a given AnimalName it is proven that that animal has a positive number of ears.
 
 Due to constraints in Elm the type is more verbose than wanted but here is the breakdown
-    ```elm
-        For AnimalName String (Proven Ears Positive)
+    
+    For AnimalName String (Proven Ears Positive)
 
-        -- For: is the name for a Contexbased expression
-        
-        -- AnimalName: is the constructor that is *not* exported by the Animal-module RefinementProofs.to ensure that no one
-        -- else can create an AnimalName context and rewire the proofs
+    -- For: is the name for a Contexbased expression
+    
+    -- AnimalName: is the constructor that is *not* exported by the Animal-module RefinementProofs.to ensure that no one
+    -- else can create an AnimalName context and rewire the proofs
 
-        -- String: is comparable type that is used to compare two contexts, for an id this is most often Int
+    -- String: is v type that is used to compare two contexts, for an id this is most often Int
 
-        -- Proven Ears Positive: The actual expression that is in the described context
-    ```
+    -- Proven Ears Positive: The actual expression that is in the described context
+    
 
 @docs Context
     , For
@@ -79,6 +80,8 @@ Due to constraints in Elm the type is more verbose than wanted but here is the b
     , proveSameContext
     , provenForContext
     , specificContext
+    , provenForContextValue
+    , unwrapContext
 -}
 import RefinementProofs.Theory exposing (Proven)
 
@@ -89,8 +92,8 @@ import RefinementProofs.Theory exposing (Proven)
     The `key` is used to ensure that only the correct module/library can create contexts. 
     Remember to keep the constructors private! 
 -}
-type Context key comparable
-    = Context comparable
+type Context key v
+    = Context v
 
 
 {-|
@@ -98,12 +101,12 @@ type Context key comparable
 
     The `key` is used to ensure that only the correct module/library can create contexts. 
 
-    The `comparable` is the value used to check if two contexts describe the same thing
+    The `v` is the value used to check if two contexts describe the same thing
 
     The `a` is the actual value in the context 
 -}
-type For key comparable a
-    = For (Context key comparable) a
+type For key v a
+    = For (Context key v) a
 
 
 
@@ -114,8 +117,8 @@ type For key comparable a
 
     The `a` is the actual value in the context 
 -}
-type alias ForVersionOf key a =
-    For key Int a
+type ForVersionOf key a =
+    ForVersionOf (Versioned key) a
 
 
 {-|
@@ -123,23 +126,31 @@ type alias ForVersionOf key a =
 
     The `key` is used to ensure that only the correct module/library can create contexts. 
 -}
-type alias Versioned key =
-    Context key Int
+type Versioned key =
+    Versioned Int
 
 
 
 {-|
     Forget the context, analogous to exorcise for proofs.
 -}
-forgetContext : For key comparable a -> a
+forgetContext : For key v a -> a
 forgetContext (For _ x) =
     x
 
 {-|
     Put a proof into a context
 -}
-provenForContext : key -> Context key comparable -> Proven a p -> For key comparable (Proven a p)
+provenForContext : key -> Context key v -> Proven a p -> For key v (Proven a p)
 provenForContext _ (Context v) =
+    For (Context v)
+
+
+{-|
+    Put a proof into a context
+-}
+provenForContextValue : key -> v -> Proven a p -> For key v (Proven a p)
+provenForContextValue _ v =
     For (Context v)
 
 
@@ -147,7 +158,7 @@ provenForContext _ (Context v) =
 {-|
     Merge two `For`s if they describe values in the same context
 -}
-proveSameContext : For key comparable a -> For key comparable b -> Maybe (For key comparable ( a, b ))
+proveSameContext : For key v a -> For key v b -> Maybe (For key v ( a, b ))
 proveSameContext ((For c1 _) as x) ((For c2 _) as y) =
     if compareContexts c1 c2 then
         Just <| For c1 ( forgetContext x, forgetContext y )
@@ -158,7 +169,7 @@ proveSameContext ((For c1 _) as x) ((For c2 _) as y) =
 {-|
     Create a context with a specific value, for example an id.
 -}
-specificContext : key -> comparable -> Context key comparable
+specificContext : key -> v -> Context key v
 specificContext _ c =
     Context c
 
@@ -168,21 +179,28 @@ specificContext _ c =
 {-|
     Extract the context for comparision
 -}
-extractContext : For key comparable a -> Context key comparable
+extractContext : For key v a -> Context key v
 extractContext (For v _) =
     v
 
+
+{-|
+    Used by library writers to get the context's value
+-}
+unwrapContext : key -> Context key v -> v
+unwrapContext _ (Context v1) = v1
 
 
 {-|
     Compare two contexts for equality, if equal they describe the same context
 -}
-compareContexts : Context key comparable -> Context key comparable -> Bool
+compareContexts : Context key v -> Context key v -> Bool
 compareContexts (Context v1) (Context v2) =
     v1 == v2
 
 
 --------------------- Version
+
 
 
 {-|
@@ -191,7 +209,7 @@ compareContexts (Context v1) (Context v2) =
 -}
 initialVersion : key -> Versioned key
 initialVersion _ =
-    Context 0
+    Versioned 0
 
 
 {-|
@@ -199,23 +217,22 @@ initialVersion _ =
     If you are interested of the acutal value then you should use `Context` and `For`
 -}
 incVersion : key -> Versioned key -> Versioned key
-incVersion _ (Context x) =
-    Context (x + 1)
-
+incVersion _ (Versioned x) =
+    Versioned (x+1)
 
 {-|
     Extract the version for comparision
 -}
-extractVersion : For key Int a -> Context key Int
-extractVersion (For v _) = 
+extractVersion : ForVersionOf key a -> Versioned key
+extractVersion (ForVersionOf v _) = 
     v
 
 
 {-|
     Compare two contexts for equality
 -}
-compareVersions : Context key comparable -> Context key comparable -> Bool
-compareVersions (Context v1) (Context v2) =
+compareVersions : Versioned key -> Versioned key -> Bool
+compareVersions (Versioned v1) (Versioned v2) =
     v1 == v2
 
 
@@ -223,26 +240,26 @@ compareVersions (Context v1) (Context v2) =
 {-|
     Forget the version, analogous to exorcise for proofs.
 -}
-forgetVersion : For key Int a -> a
-forgetVersion (For _ x) =
+forgetVersion : ForVersionOf key a -> a
+forgetVersion (ForVersionOf _ x) =
     x
 
 
 {-|
     Put a proof into a context
 -}
-provenForVersion : key -> Context key Int -> Proven a p -> For key Int (Proven a p)
-provenForVersion _ (Context v) =
-    For (Context v)
+provenForVersion : key -> Versioned key -> Proven a p -> ForVersionOf key (Proven a p)
+provenForVersion _ (Versioned x) =
+    ForVersionOf (Versioned x)
 
 
 {-|
     Merge two `For`s if they describe values in the same context
 -}
-proveSameVersion : For key Int a -> For key Int b -> Maybe (For key Int ( a, b ))
-proveSameVersion ((For c1 _) as x) ((For c2 _) as y) =
+proveSameVersion : ForVersionOf key a -> ForVersionOf key b -> Maybe (ForVersionOf key ( a, b ))
+proveSameVersion ((ForVersionOf c1 _) as x) ((ForVersionOf c2 _) as y) =
     if compareVersions c1 c2 then
-        Just <| For c1 ( forgetVersion x, forgetVersion y )
+        Just <| ForVersionOf c1 ( forgetVersion x, forgetVersion y )
 
     else
         Nothing
