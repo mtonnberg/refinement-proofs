@@ -26,6 +26,40 @@ module RefinementProofs.Theory exposing
 
 {-| This library allows for stronger and more refined types in Elm for both library writer and end users.
 
+
+Sometimes we want to create "proofs" that is dependent other other data or other systems - for example a API backend.
+We can use a "Context" to describe under which scenario the proof holds. 
+Note, there is value to describe the context even if other proofs is not used.
+
+For example:
+        cozyAnimals : ForVersionOf BackendResponse (Proved (List CozyAnimals) NonEmptyList)
+Would mean that for a given backendresponse we have proved that the list of cozy animals is non empty
+In a different part of the code we could have this type:
+        animal : ForVersionOf BackendResponse (Proved Animal CozyAnimal)
+Which would mean that for a given backend response we have proved that the animal in question is a cozy animal
+Then in a third part of the code we have both the cozyAnimals and the animal value
+To see if the proofs are based on the same backend response we would
+        
+    firstCheck : Maybe (ForVersionOf BackendResponse (Proved (List CozyAnimals) NonEmptyList, Proved Animal CozyAnimal)
+    firstCheck = proveSameVersion cozyAnimals animal
+    -- Continue here, deciding what to do if the proofs came from two different API responses 
+
+# Context
+Context is more generalized data type that `Version` is based upon. This is useful if a specific v
+is prefered or needed instead of just a 'random' number.
+
+For example: 
+    type alias Ears = Int
+    type AnimalName = AnimalName String 
+    p : For AnimalName (Proven Ears Positive)
+    p = ...
+
+    -- For: is the name for a Contexbased expression
+    -- AnimalName: is the constructor that is *not* exported by the Animal-module RefinementProofs.to ensure that no one
+    -- else can create an AnimalName context and rewire the proofs
+    -- Proven Ears Positive: The actual expression that is in the described context
+
+
 # Definition
 @docs Proven
 
