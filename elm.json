@@ -3,7 +3,7 @@
     "name": "mtonnberg/refinement-proofs",
     "summary": "Refinement types in elm",
     "license": "BSD-3-Clause",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "exposed-modules": [
         "RefinementProofs.Proofs.StringProofs",
         "RefinementProofs.Proofs.ListProofs",

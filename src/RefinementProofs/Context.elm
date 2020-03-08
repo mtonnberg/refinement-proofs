@@ -25,10 +25,14 @@ We can use a "Context" to describe under which scenario the proof holds.
 Note, there is value to describe the context even if other proofs is not used.
 
 For example:
-        cozyAnimals : ForVersionOf BackendResponse (Proved (List CozyAnimals) NonEmptyList)
+
+    cozyAnimals : ForVersionOf BackendResponse (Proved (List CozyAnimals) NonEmptyList)
+
 Would mean that for a given backendresponse we have proved that the list of cozy animals is non empty
 In a different part of the code we could have this type:
-        animal : ForVersionOf BackendResponse (Proved Animal CozyAnimal)
+
+    animal : ForVersionOf BackendResponse (Proved Animal CozyAnimal)
+
 Which would mean that for a given backend response we have proved that the animal in question is a cozy animal
 Then in a third part of the code we have both the cozyAnimals and the animal value
 To see if the proofs are based on the same backend response we would
@@ -52,12 +56,12 @@ To see if the proofs are based on the same backend response we would
 Context is more generalized data type that `Version` is based upon. This is useful if a specific v
 is prefered or needed instead of just a 'random' number.
 
-For example: 
+For example:
+ 
     type alias Ears = Int
     type AnimalName = AnimalName String 
     p : For AnimalName (Proven Ears Positive)
     p = ...
-
     -- For: is the name for a Contexbased expression
     -- AnimalName: is the constructor that is *not* exported by the Animal-module RefinementProofs.to ensure that no one
     -- else can create an AnimalName context and rewire the proofs
