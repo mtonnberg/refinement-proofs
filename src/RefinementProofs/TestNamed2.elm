@@ -11,9 +11,8 @@ import RefinementProofs.WithKnowledge
         , NoNamedKnowledge
         , Proof
         , WithKnowledge
-        , attachDomainKnowledge
+        , axiomaticallyAddDomainKnowledge
         , attachNamedKnowledge
-        , axiomaticContextKnowledge
         , axiomaticValueKnowledge
         , d_andIsFlippable
         , d_since
@@ -21,7 +20,7 @@ import RefinementProofs.WithKnowledge
         , forgetNamedKnowledge
         , name2
         , raw
-        , setDomainKnowledge
+        , axiomaticallySetDomainKnowledge
         , setNamedKnowledge
         , the
         , v_makeAnd
@@ -51,7 +50,7 @@ carDictToDomainKnowledge :
     -> WithKnowledge String v d (IsInDict key dict)
     -> WithKnowledge String v (And d ASupportedCarBrand) NoNamedKnowledge
 carDictToDomainKnowledge _ _ r =
-    attachDomainKnowledge ASupportedCarBrand <|
+    axiomaticallyAddDomainKnowledge ASupportedCarBrand <|
         forgetNamedKnowledge r
 
 
@@ -97,7 +96,7 @@ handleInner namedDict namedWantedKey =
                             in
                             if List.member stringCandidate topTierBrands then
                                 Just <|
-                                    setDomainKnowledge ATopTierBrandToday <|
+                                    axiomaticallySetDomainKnowledge ATopTierBrandToday <|
                                         setNamedKnowledge s isInDictProof
 
                             else

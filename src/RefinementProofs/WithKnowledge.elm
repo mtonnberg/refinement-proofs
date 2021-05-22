@@ -5,13 +5,13 @@ module RefinementProofs.WithKnowledge exposing
     , forget, imply
     , forgetNamedKnowledge
     , setNamedKnowledge
-    , setDomainKnowledge
+    , axiomaticallySetDomainKnowledge
     , NoValueKnowledge
     , NoDomainKnowledge
-    , attachDomainKnowledge
+    , axiomaticallyAddDomainKnowledge
     , d_andIsFlippable, d_modusPonens, d_since
     , NoNamedKnowledge
-    , A, NoKnowledge, Proof, attachNamedKnowledge, axiomaticContextKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, detachNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, the, v_elimAndL, v_elimAndR, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName
+    , A, NoKnowledge, Proof, attachNamedKnowledge, axiomaticDomainKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, detachNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, the, v_elimAndL, v_elimAndR, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName
     )
 
 {-| This library allows for stronger and more refined types in Elm for both library writer and end users.
@@ -144,12 +144,12 @@ setNamedKnowledge : WithKnowledge a s d n1 -> Proof n2 -> WithKnowledge a s d n2
 setNamedKnowledge x _ =
     axiomInternal <| forget x
 
-attachDomainKnowledge :  d2  -> WithKnowledge a s d1 n -> WithKnowledge a s (And d1 d2) n
-attachDomainKnowledge _ x =
+axiomaticallyAddDomainKnowledge :  d2  -> WithKnowledge a s d1 n -> WithKnowledge a s (And d1 d2) n
+axiomaticallyAddDomainKnowledge _ x =
     axiomInternal <| forget x
 
-setDomainKnowledge :  d2 -> WithKnowledge a s d1 n -> WithKnowledge a s d2 n
-setDomainKnowledge _ x =
+axiomaticallySetDomainKnowledge :  d2 -> WithKnowledge a s d1 n -> WithKnowledge a s d2 n
+axiomaticallySetDomainKnowledge _ x =
     axiomInternal <| forget x
 
 
@@ -199,8 +199,8 @@ axiomaticValueKnowledge _ x =
 {-| Used by library writers to create axioms with non-exported constructors.
 Remember, the library/module RefinementProofs.constructors must not be exported!
 -}
-axiomaticContextKnowledge : c -> a -> WithKnowledge a NoKnowledge c NoKnowledge
-axiomaticContextKnowledge _ x =
+axiomaticDomainKnowledge : c -> a -> WithKnowledge a NoKnowledge c NoKnowledge
+axiomaticDomainKnowledge _ x =
     WithKnowledge x
 
 

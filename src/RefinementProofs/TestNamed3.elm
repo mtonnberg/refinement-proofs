@@ -11,17 +11,16 @@ import RefinementProofs.WithKnowledge
         , NoNamedKnowledge
         , Proof
         , WithKnowledge
-        , attachDomainKnowledge
         , attachNamedKnowledge
-        , axiomaticContextKnowledge
         , axiomaticValueKnowledge
+        , axiomaticallyAddDomainKnowledge
         , d_andIsFlippable
         , d_since
         , forget
         , forgetNamedKnowledge
         , name2
         , raw
-        , setDomainKnowledge
+        , axiomaticallySetDomainKnowledge
         , setNamedKnowledge
         , the
         , v_makeAnd
@@ -51,7 +50,7 @@ carDictToDomainKnowledge :
     -> WithKnowledge String v d (IsInDict key dict)
     -> WithKnowledge String v (And d ASupportedCarBrand) NoNamedKnowledge
 carDictToDomainKnowledge _ _ r =
-    attachDomainKnowledge ASupportedCarBrand <|
+    axiomaticallyAddDomainKnowledge ASupportedCarBrand <|
         forgetNamedKnowledge r
 
 
@@ -62,10 +61,11 @@ handle :
 handle namedDict namedWantedKey =
     Maybe.map (d_since d_andIsFlippable << carDictToDomainKnowledge namedDict namedWantedKey) <| handleInner namedDict namedWantedKey
 
+
 handleInner :
-            A (Dict Int String) dict
-            -> A Int key
-            -> Maybe (WithKnowledge String (And TrimmedString NonEmptyString) ATopTierBrandToday (IsInDict key dict))
+    A (Dict Int String) dict
+    -> A Int key
+    -> Maybe (WithKnowledge String (And TrimmedString NonEmptyString) ATopTierBrandToday (IsInDict key dict))
 handleInner namedDict namedWantedKey =
     case ( withName provePositive2 namedWantedKey, proveKeyIsInDict namedWantedKey namedDict ) of
         ( Just namedPositive, Just isInDictProof ) ->
@@ -88,7 +88,7 @@ handleInner namedDict namedWantedKey =
                     in
                     if List.member stringCandidate topTierBrands then
                         Just <|
-                            setDomainKnowledge ATopTierBrandToday <|
+                            axiomaticallySetDomainKnowledge ATopTierBrandToday <|
                                 setNamedKnowledge s isInDictProof
 
                     else
