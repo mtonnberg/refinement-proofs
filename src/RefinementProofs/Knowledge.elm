@@ -2,11 +2,13 @@ module RefinementProofs.Knowledge exposing
     ( WithKnowledge
     , And, Or, Not, XOr, Implies
     , or, and, not
+    , withNoKnowledge
     , forget, imply
     , A, NoDomainKnowledge, NoNamedKnowledge, NoValueKnowledge, Proof, andIsFlippable, attachNamedKnowledge, axiomaticDomainKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, axiomaticallyAddDomainKnowledge, axiomaticallySetDomainKnowledge, d_modusPonens, d_since, detachNamedKnowledge, forgetNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, setNamedKnowledge, the, v_elimAndL, v_elimAndR, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName
     )
 
 {-| This library allows for more knowledge to be captured in the types, for both library writers and application coders.
+
 
 # Definition
 
@@ -112,6 +114,10 @@ type Or p1 p2
 type Proof p
     = Proof
 
+{-| Used to wrap a value in a WithKnowledge type with no associated knowledge
+-}
+withNoKnowledge : a -> WithKnowledge a NoValueKnowledge NoDomainKnowledge NoNamedKnowledge
+withNoKnowledge x = WithKnowledge x
 
 {-| Used by library writers to create proofs for named knowledge with non-exported constructors.
 Remember, the library/module RefinementProofs.constructors must not be exported!
@@ -130,15 +136,15 @@ detachNamedKnowledge _ =
 
 {-| Attaches named knowledge. This is safe and a library writer should expect and allow its users to do this.
 -}
-attachNamedKnowledge : WithKnowledge a s c n -> Proof n1 -> WithKnowledge a s c (And n n1)
-attachNamedKnowledge x _ =
+attachNamedKnowledge : Proof n1 -> WithKnowledge a s c n -> WithKnowledge a s c (And n n1)
+attachNamedKnowledge _ x =
     axiomInternal <| forget x
 
 
 {-| Sets named knowledge, forgetting all previous named knowledge. This is always safe and a library writer should always expect and allow its users to do this.
 -}
-setNamedKnowledge : WithKnowledge a s d n1 -> Proof n2 -> WithKnowledge a s d n2
-setNamedKnowledge x _ =
+setNamedKnowledge : Proof n2 -> WithKnowledge a s d n1 -> WithKnowledge a s d n2
+setNamedKnowledge _ x =
     axiomInternal <| forget x
 
 
@@ -185,7 +191,10 @@ raw =
 
 {-| This is used to name a type to allow us to express relations between different types. For example that an value is a key in a given dictonary.
 
+
 ### Do not use a lambda for the function input. It must be a function with an explicit function signature!
+### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will ***break*** the type safety.
+
 -}
 name : a -> (A a c -> b) -> b
 name x f =
@@ -193,7 +202,11 @@ name x f =
 
 
 {-| This is used to name two types to allow us to express relations between different types. For example that an value is a key in a given dictonary.
+
+
 ### Do not use a lambda for the function input. It must be a function with an explicit function signature!
+### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will ***break*** the type safety.
+
 -}
 name2 : a1 -> a2 -> (A a1 c1 -> A a2 c2 -> b) -> b
 name2 x y f =
@@ -224,7 +237,7 @@ axiomaticValueKnowledge _ x =
 {-| Used by library writers to create axioms with non-exported constructors.
 Remember, the library/module RefinementProofs.constructors must not be exported!
 -}
-axiomaticDomainKnowledge : c -> a -> WithKnowledge a NoKnowledge c NoKnowledge
+axiomaticDomainKnowledge : d -> a -> WithKnowledge a NoKnowledge d NoKnowledge
 axiomaticDomainKnowledge _ x =
     WithKnowledge x
 
