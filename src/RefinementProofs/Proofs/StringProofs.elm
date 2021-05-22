@@ -1,43 +1,51 @@
 module RefinementProofs.Proofs.StringProofs exposing
     ( NonEmptyString
-    , NonEmptyTrimmedString
     , TrimmedString
-    , lengthOfNonEmptyString
+    , NonEmptyTrimmedString
     , mkTrimmedString
     , proveNonEmptyString
     , proveNonEmptyTrimmedString
     , proveTrimmedString
+    , lengthOfNonEmptyString
     )
 
 {-| Some basic string proofs
 
+
 # Definition
+
 @docs NonEmptyString
-    , TrimmedString
-    , NonEmptyTrimmedString
+@docs TrimmedString
+@docs NonEmptyTrimmedString
+
 
 # Proofs
+
 @docs mkTrimmedString
-    , proveNonEmptyString
-    , proveNonEmptyTrimmedString
-    , proveTrimmedString
+@docs proveNonEmptyString
+@docs proveNonEmptyTrimmedString
+@docs proveTrimmedString
+
 
 # Functions
+
 @docs lengthOfNonEmptyString
 
 -}
+
 import RefinementProofs.Proofs.NumberProofs
     exposing
         ( Positive
         , provePositive
         )
-import RefinementProofs.Theory
+import RefinementProofs.WithKnowledge
     exposing
         ( And
-        , Proven(..)
-        , axiom
-        , exorcise
-        , makeAnd
+        , NoKnowledge
+        , WithKnowledge(..)
+        , axiomaticValueKnowledge
+        , forget
+        , v_makeAnd
         )
 
 
@@ -61,10 +69,10 @@ type alias NonEmptyTrimmedString =
 
 {-| Prove that a string is non-empty
 -}
-proveNonEmptyString : String -> Maybe (Proven String NonEmptyString)
+proveNonEmptyString : String -> Maybe (WithKnowledge String NonEmptyString NoKnowledge NoKnowledge)
 proveNonEmptyString x =
     if String.length x > 0 then
-        Just <| axiom NonEmptyString x
+        Just <| axiomaticValueKnowledge NonEmptyString x
 
     else
         Nothing
@@ -72,17 +80,17 @@ proveNonEmptyString x =
 
 {-| Make a trimmed string from a string. Note: will trim a non-trimmed string
 -}
-mkTrimmedString : String -> Proven String TrimmedString
+mkTrimmedString : String -> WithKnowledge String TrimmedString NoKnowledge NoKnowledge
 mkTrimmedString =
-    axiom TrimmedString << String.trim
+    axiomaticValueKnowledge TrimmedString << String.trim
 
 
 {-| Prove that a string is trimmed
 -}
-proveTrimmedString : String -> Maybe (Proven String TrimmedString)
+proveTrimmedString : String -> Maybe (WithKnowledge String TrimmedString NoKnowledge NoKnowledge)
 proveTrimmedString x =
     if String.trim x == x then
-        Just <| axiom TrimmedString x
+        Just <| axiomaticValueKnowledge TrimmedString x
 
     else
         Nothing
@@ -90,15 +98,18 @@ proveTrimmedString x =
 
 {-| Prove that a string is both non-empty and trimmed
 -}
-proveNonEmptyTrimmedString : String -> Maybe (Proven String NonEmptyTrimmedString)
+proveNonEmptyTrimmedString : String -> Maybe (WithKnowledge String NonEmptyTrimmedString NoKnowledge NoKnowledge)
 proveNonEmptyTrimmedString =
-    makeAnd proveNonEmptyString proveTrimmedString
+    v_makeAnd proveNonEmptyString proveTrimmedString
 
 
 {-| Get the length of a non-empty string
 -}
-lengthOfNonEmptyString : Proven String NonEmptyString -> Proven Int Positive
+lengthOfNonEmptyString : WithKnowledge String NonEmptyString NoKnowledge NoKnowledge -> WithKnowledge Int Positive NoKnowledge NoKnowledge
 lengthOfNonEmptyString x =
-    case provePositive << String.length <| exorcise x of
-        Just p -> p
-        Nothing ->  Debug.todo "absurd" 
+    case provePositive << String.length <| forget x of
+        Just p ->
+            p
+
+        Nothing ->
+            Debug.todo "absurd"

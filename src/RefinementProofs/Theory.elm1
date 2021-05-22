@@ -1,34 +1,14 @@
 module RefinementProofs.Theory exposing
-    ( And
-    , Implies
-    , Not
-    , Or
-    , Proven
-    , XOr
-    , and
-    , axiom
-    , elimAndL
-    , elimAndR
-    , exorcise
-    , imply
-    , introOrL
-    , introOrR
-    , inverse
-    , makeAnd
-    , makeOr
-    , modusPonens
-    , modusTollens
-    , not
-    , or
-    , since
-    , sinceNot
+    ( Proven
+    , And, Or, Not, XOr, Implies
+    , axiom, or, and, not
+    , introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, forget, modusPonens, since, modusTollens, sinceNot, imply
     )
 
 {-| This library allows for stronger and more refined types in Elm for both library writer and end users.
 
-
 Sometimes we want to create "proofs" that is dependent other other data or other systems - for example a API backend.
-We can use a "Context" to describe under which scenario the proof holds. 
+We can use a "Context" to describe under which scenario the proof holds.
 Note, there is value to describe the context even if other proofs is not used.
 
 For example:
@@ -39,23 +19,25 @@ Would mean that for a given backendresponse we have proved that the list of cozy
 In a different part of the code we could have this type:
 
     animal : ForVersionOf BackendResponse (Proved Animal CozyAnimal)
-        
+
 Which would mean that for a given backend response we have proved that the animal in question is a cozy animal
 Then in a third part of the code we have both the cozyAnimals and the animal value
 To see if the proofs are based on the same backend response we would
-        
+
     firstCheck : Maybe (ForVersionOf BackendResponse (Proved (List CozyAnimals) NonEmptyList, Proved Animal CozyAnimal)
     firstCheck = proveSameVersion cozyAnimals animal
-    -- Continue here, deciding what to do if the proofs came from two different API responses 
+    -- Continue here, deciding what to do if the proofs came from two different API responses
+
 
 # Context
+
 Context is more generalized data type that `Version` is based upon. This is useful if a specific v
 is prefered or needed instead of just a 'random' number.
 
-For example: 
+For example:
 
     type alias Ears = Int
-    type AnimalName = AnimalName String 
+    type AnimalName = AnimalName String
     p : For AnimalName (Proven Ears Positive)
     p = ...
     -- For: is the name for a Contexbased expression
@@ -65,18 +47,26 @@ For example:
 
 
 # Definition
+
 @docs Proven
 
+
 # Logic operator types
+
 @docs And, Or, Not, XOr, Implies
 
+
 # Basic function
+
 @docs axiom, or, and, not
 
+
 # Logic operators
-@docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, exorcise, modusPonens, since, modusTollens, sinceNot, imply
+
+@docs introOrR, introOrL, makeOr, makeAnd, inverse, elimAndL, elimAndR, forget, modusPonens, since, modusTollens, sinceNot, imply
 
 -}
+
 
 {-| A value "a" that is proven to hold the property "b"
 -}
@@ -115,7 +105,7 @@ type Or p1 p2
 
 
 {-| Used by library writers to create axioms with non-exported constructors.
-    Remember, the library/module RefinementProofs.constructors must not be exported!
+Remember, the library/module RefinementProofs.constructors must not be exported!
 -}
 axiom : p -> a -> Proven a p
 axiom _ x =
@@ -123,7 +113,7 @@ axiom _ x =
 
 
 {-| DANGER ZONE!
-    Used internally by this module RefinementProofs.only to prove general logic. Must never be exported and used with extreme care!
+Used internally by this module RefinementProofs.only to prove general logic. Must never be exported and used with extreme care!
 -}
 axiomInternal : a -> Proven a b
 axiomInternal x =
@@ -162,7 +152,7 @@ introOrR (Proven x) =
 -}
 introOrL : Proven a p1 -> Proven a (Or p2 p1)
 introOrL =
-    axiomInternal << exorcise
+    axiomInternal << forget
 
 
 {-| A convience method to check two proofs at once for And
@@ -175,7 +165,6 @@ makeAnd f g x =
 
         _ ->
             Nothing
-
 
 
 {-| A convience method to check two proofs for Or
@@ -209,19 +198,20 @@ inverse _ f x =
 -}
 elimAndL : Proven a (And b c) -> Proven a b
 elimAndL =
-    axiomInternal << exorcise
+    axiomInternal << forget
 
 
 {-| Remove the right hand side of an And proof
 -}
 elimAndR : Proven a (And b c) -> Proven a c
 elimAndR =
-    axiomInternal << exorcise
+    axiomInternal << forget
+
 
 {-| Extract the actual value and remove the proof. This is always safe and a library writer should always expect and allow its users to do this.
 -}
-exorcise : Proven a b -> a
-exorcise (Proven x) =
+forget : Proven a b -> a
+forget (Proven x) =
     x
 
 
@@ -229,7 +219,7 @@ exorcise (Proven x) =
 -}
 modusPonens : Implies p1 p2 -> Proven a p1 -> Proven a p2
 modusPonens _ =
-    axiomInternal << exorcise
+    axiomInternal << forget
 
 
 {-| Synonym for "modus ponens". If a library implies that when p1 holds the p2 holds then you have proven p2 by prove p1
@@ -243,7 +233,7 @@ since =
 -}
 modusTollens : Implies p1 p2 -> Proven a (Not p1) -> Proven a (Not p2)
 modusTollens _ =
-    axiomInternal << exorcise
+    axiomInternal << forget
 
 
 {-| Synonym for "modus tollens". If a library implies that when p1 holds the p2 holds then you have proven (Not p2) by prove (Not p1)

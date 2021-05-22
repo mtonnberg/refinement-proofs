@@ -1,8 +1,7 @@
 module RefinementProofs.Proofs.ListProofs exposing
     ( NonEmptyList, SortedList
     , proveNonEmptyList, mkSortedList
-    , head, nonEmptyListMap
-    , lengthOfNonEmptyList
+    , head, nonEmptyListMap, lengthOfNonEmptyList
     )
 
 {-| Some basic list proofs
@@ -29,21 +28,32 @@ import RefinementProofs.Proofs.NumberProofs
         ( Positive
         , provePositive
         )
-import RefinementProofs.Theory
+import RefinementProofs.WithKnowledge
     exposing
-        ( Proven(..)
-        , axiom
-        , exorcise
+        ( A
+        , NoKnowledge
+        , Proof
+        , WithKnowledge(..)
+        , axiomaticValueKnowledge
+        , forget
+        , raw
+        , the
         )
 
 
-{-| A non-empty list
+{-| A named non-empty list
+-}
+type IsNonEmptyList list
+    = IsNonEmptyList
+
+
+{-| An unnamed non-empty list
 -}
 type NonEmptyList
     = NonEmptyList
 
 
-{-| A sorted list
+{-| An unnamed sorted list
 -}
 type SortedList
     = SortedList
@@ -51,10 +61,10 @@ type SortedList
 
 {-| Prove that a list is non-empty
 -}
-proveNonEmptyList : List a -> Maybe (Proven (List a) NonEmptyList)
+proveNonEmptyList : List a -> Maybe (WithKnowledge (List a) NonEmptyList NoKnowledge NoKnowledge)
 proveNonEmptyList x =
     if List.length x > 0 then
-        Just <| axiom NonEmptyList x
+        Just <| axiomaticValueKnowledge NonEmptyList x
 
     else
         Nothing
@@ -62,36 +72,37 @@ proveNonEmptyList x =
 
 {-| Make a sorted list.
 -}
-mkSortedList : List comparable -> Proven (List comparable) SortedList
+mkSortedList : List comparable -> WithKnowledge (List comparable) SortedList NoKnowledge NoKnowledge
 mkSortedList =
-    axiom SortedList << List.sort
+    axiomaticValueKnowledge SortedList << List.sort
 
 
 {-| Safely get a head of a non-empty list
 -}
-head : Proven (List a) NonEmptyList -> a
+head : WithKnowledge (List a) NonEmptyList d n -> a
 head xs =
-    case exorcise xs of
+    case forget xs of
         [] ->
-            Debug.todo "absurd" 
+            Debug.todo "absurd"
 
         x :: _ ->
             x
 
 
-
-
 {-| Map over a non-empty list
 -}
-nonEmptyListMap : (a -> b) -> Proven (List a) NonEmptyList -> Proven (List b) NonEmptyList
+nonEmptyListMap : (a -> b) -> WithKnowledge (List a) NonEmptyList NoKnowledge NoKnowledge -> WithKnowledge (List b) NonEmptyList NoKnowledge NoKnowledge
 nonEmptyListMap f xs =
-    axiom NonEmptyList <| List.map f <| exorcise xs
+    axiomaticValueKnowledge NonEmptyList <| List.map f <| forget xs
 
 
 {-| Get the length of a non-empty list
 -}
-lengthOfNonEmptyList : Proven (List a) NonEmptyList -> Proven Int Positive
+lengthOfNonEmptyList : WithKnowledge (List a) NonEmptyList d n -> WithKnowledge Int Positive NoKnowledge NoKnowledge
 lengthOfNonEmptyList x =
-    case provePositive << List.length <| exorcise x of
-        Just p -> p
-        Nothing -> Debug.todo "absurd" 
+    case provePositive << List.length <| forget x of
+        Just p ->
+            p
+
+        Nothing ->
+            Debug.todo "absurd"

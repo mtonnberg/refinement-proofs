@@ -5,45 +5,54 @@ module RefinementProofs.Proofs.NumberProofs exposing
     , Positive
     , Zero
     , ZeroOrGreater
-    , allPositivesAreZeroOrGreater
     , proveEven
     , proveNegative
     , proveOdd
     , provePositive
     , proveZeroOrGreater
+    , allPositivesAreZeroOrGreater
     )
 
 {-| Some basic number proofs
 
+
 # Definition
+
 @docs Even
-    , Negative
-    , Odd
-    , Positive
-    , Zero
-    , ZeroOrGreater
+@docs Negative
+@docs Odd
+@docs Positive
+@docs Zero
+@docs ZeroOrGreater
+
 
 # Proofs
+
 @docs proveEven
-    , proveNegative
-    , proveOdd
-    , provePositive
-    , proveZeroOrGreater
+@docs proveNegative
+@docs proveOdd
+@docs provePositive
+@docs proveZeroOrGreater
+
 
 # Implications
+
 @docs allPositivesAreZeroOrGreater
+
 -}
-import RefinementProofs.Theory
+
+import RefinementProofs.WithKnowledge
     exposing
         ( Implies
+        , NoKnowledge
         , Not
         , Or
-        , Proven(..)
-        , axiom
-        , inverse
-        , makeOr
+        , WithKnowledge(..)
+        , axiomaticValueKnowledge
         , imply
         , or
+        , v_inverse
+        , v_makeOr
         )
 
 
@@ -85,10 +94,10 @@ type alias Odd =
 
 {-| Prove that a number equals to zero
 -}
-proveZero : number -> Maybe (Proven number Zero)
+proveZero : number -> Maybe (WithKnowledge number Zero NoKnowledge NoKnowledge)
 proveZero x =
     if x == 0 then
-        Just <| axiom Zero x
+        Just <| axiomaticValueKnowledge Zero x
 
     else
         Nothing
@@ -96,10 +105,10 @@ proveZero x =
 
 {-| Prove that a number is positive (>0)
 -}
-provePositive : number -> Maybe (Proven number Positive)
+provePositive : number -> Maybe (WithKnowledge number Positive NoKnowledge NoKnowledge)
 provePositive x =
     if x > 0 then
-        Just <| axiom Positive x
+        Just <| axiomaticValueKnowledge Positive x
 
     else
         Nothing
@@ -107,24 +116,24 @@ provePositive x =
 
 {-| Prove that a number is either zero or greater
 -}
-proveZeroOrGreater : number -> Maybe (Proven number ZeroOrGreater)
+proveZeroOrGreater : number -> Maybe (WithKnowledge number ZeroOrGreater NoKnowledge NoKnowledge)
 proveZeroOrGreater =
-    makeOr proveZero provePositive
+    v_makeOr proveZero provePositive
 
 
 {-| Prove a number is negative
 -}
-proveNegative : number -> Maybe (Proven number Negative)
+proveNegative : number -> Maybe (WithKnowledge number Negative NoKnowledge NoKnowledge)
 proveNegative =
-    inverse (or Zero Positive) proveZeroOrGreater
+    v_inverse (or Zero Positive) proveZeroOrGreater
 
 
 {-| Prove that a number is even
 -}
-proveEven : Int -> Maybe (Proven Int Even)
+proveEven : Int -> Maybe (WithKnowledge Int Even NoKnowledge NoKnowledge)
 proveEven x =
     if modBy 2 x == 0 then
-        Just <| axiom Even x
+        Just <| axiomaticValueKnowledge Even x
 
     else
         Nothing
@@ -132,14 +141,14 @@ proveEven x =
 
 {-| Prove that a number is odd
 -}
-proveOdd : Int -> Maybe (Proven Int Odd)
+proveOdd : Int -> Maybe (WithKnowledge Int Odd NoKnowledge NoKnowledge)
 proveOdd =
-    inverse Even proveEven
+    v_inverse Even proveEven
 
 
 {-| A simple implication.
-    Note this is strictly not needed since this implication is clear in the types - `ZeroOrGreater = Or Zero Positive`.
-    An alternative is to use `introOrL` or `or`.
+Note this is strictly not needed since this implication is clear in the types - `ZeroOrGreater = Or Zero Positive`.
+An alternative is to use `introOrL` or `or`.
 -}
 allPositivesAreZeroOrGreater : Implies Positive ZeroOrGreater
 allPositivesAreZeroOrGreater =

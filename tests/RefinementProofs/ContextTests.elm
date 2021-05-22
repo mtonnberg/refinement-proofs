@@ -6,9 +6,9 @@ import RefinementProofs.Proofs.NumberProofs exposing (..)
 import RefinementProofs.Theory as RefinementTheory
     exposing
         ( Not
-        , Proven(..)
+        , WithKnowledge(..)
         , axiom
-        , exorcise
+        , forget
         )
 import Test exposing (Test, describe, fuzz, test)
 
@@ -37,7 +37,7 @@ type alias Color =
     String
 
 
-proveColorNotRed : Color -> Maybe (Proven Color (Not Red))
+proveColorNotRed : Color -> Maybe (WithKnowledge Color (Not Red))
 proveColorNotRed =
     Just << axiom (RefinementTheory.not Red)
 
@@ -58,7 +58,7 @@ suite =
         [ test "Compare different versions" <|
             \_ ->
                 let
-                    posInt : Proven Int Positive
+                    posInt : WithKnowledge Int Positive
                     posInt =
                         case RefinementProofs.Proofs.NumberProofs.provePositive 1 of
                             Just i ->
@@ -67,7 +67,7 @@ suite =
                             Nothing ->
                                 Debug.todo "absurd"
 
-                    step1 : ForVersionOf State1 (Proven Int Positive)
+                    step1 : ForVersionOf State1 (WithKnowledge Int Positive)
                     step1 =
                         provenForVersion State1 (initialVersion State1) posInt
 
@@ -79,14 +79,14 @@ suite =
                     nextStepVersion =
                         incVersion State1 versionUsedInStep1
 
-                    step2 : ForVersionOf State1 (Proven Int Positive)
+                    step2 : ForVersionOf State1 (WithKnowledge Int Positive)
                     step2 =
                         provenForVersion State1 nextStepVersion posInt
                 in
                 Expect.true "version tests" <|
                     isJust (proveSameVersion step1 step1)
                         && not (isJust <| proveSameVersion step1 step2)
-                        && ((exorcise <| forgetVersion step2) == 1)
+                        && ((forget <| forgetVersion step2) == 1)
         , test "Compare different contexts, more complex" <|
             \_ ->
                 let
@@ -97,7 +97,7 @@ suite =
                     backendResult =
                         initialVersion BackendResult
 
-                    colorForCarOne2 : For GivenCarId ( Versioned BackendResult, CarId ) (Proven Color (Not Red))
+                    colorForCarOne2 : For GivenCarId ( Versioned BackendResult, CarId ) (WithKnowledge Color (Not Red))
                     colorForCarOne2 =
                         case proveColorNotRed "Blue" of
                             Just p ->
@@ -106,7 +106,7 @@ suite =
                             Nothing ->
                                 Debug.todo "absurd"
 
-                    noOfWheelsForCarOne2 : For GivenCarId ( Versioned BackendResult, CarId ) (Proven Int ZeroOrGreater)
+                    noOfWheelsForCarOne2 : For GivenCarId ( Versioned BackendResult, CarId ) (WithKnowledge Int ZeroOrGreater)
                     noOfWheelsForCarOne2 =
                         case proveZeroOrGreater 4 of
                             Just p ->
@@ -128,7 +128,7 @@ suite =
                     carTwo =
                         CarId 33
 
-                    colorForCarOne : For GivenCarId CarId (Proven Color (Not Red))
+                    colorForCarOne : For GivenCarId CarId (WithKnowledge Color (Not Red))
                     colorForCarOne =
                         case proveColorNotRed "Blue" of
                             Just p ->
@@ -137,7 +137,7 @@ suite =
                             Nothing ->
                                 Debug.todo "absurd"
 
-                    noOfWheelsForCarOne : For GivenCarId CarId (Proven Int ZeroOrGreater)
+                    noOfWheelsForCarOne : For GivenCarId CarId (WithKnowledge Int ZeroOrGreater)
                     noOfWheelsForCarOne =
                         case proveZeroOrGreater 4 of
                             Just p ->
@@ -146,7 +146,7 @@ suite =
                             Nothing ->
                                 Debug.todo "absurd"
 
-                    noOfWheelsForCarTwo : For GivenCarId CarId (Proven Int ZeroOrGreater)
+                    noOfWheelsForCarTwo : For GivenCarId CarId (WithKnowledge Int ZeroOrGreater)
                     noOfWheelsForCarTwo =
                         case proveZeroOrGreater 3 of
                             Just p ->

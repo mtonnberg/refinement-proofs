@@ -8,8 +8,10 @@
         "RefinementProofs.Proofs.StringProofs",
         "RefinementProofs.Proofs.ListProofs",
         "RefinementProofs.Proofs.NumberProofs",
-        "RefinementProofs.Theory",
-        "RefinementProofs.Context"
+        "RefinementProofs.WithKnowledge",
+        "RefinementProofs.TestNamed",
+        "RefinementProofs.TestNamed2",
+        "RefinementProofs.TestNamed3"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
