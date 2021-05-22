@@ -1,7 +1,6 @@
 module RefinementProofs.ListProofsTests exposing (suite)
 
 import Expect
-import RefinementProofs.Context exposing (..)
 import RefinementProofs.Proofs.ListProofs
     exposing
         ( proveNonEmptyList

@@ -33,19 +33,20 @@ module RefinementProofs.Proofs.StringProofs exposing
 
 -}
 
-import RefinementProofs.Proofs.NumberProofs
-    exposing
-        ( Positive
-        , provePositive
-        )
-import RefinementProofs.WithKnowledge
+import RefinementProofs.Knowledge
     exposing
         ( And
-        , NoKnowledge
+        , NoDomainKnowledge
+        , NoNamedKnowledge
         , WithKnowledge(..)
         , axiomaticValueKnowledge
         , forget
         , v_makeAnd
+        )
+import RefinementProofs.Proofs.NumberProofs
+    exposing
+        ( Positive
+        , provePositive
         )
 
 
@@ -69,7 +70,7 @@ type alias NonEmptyTrimmedString =
 
 {-| Prove that a string is non-empty
 -}
-proveNonEmptyString : String -> Maybe (WithKnowledge String NonEmptyString NoKnowledge NoKnowledge)
+proveNonEmptyString : String -> Maybe (WithKnowledge String NonEmptyString NoDomainKnowledge NoNamedKnowledge)
 proveNonEmptyString x =
     if String.length x > 0 then
         Just <| axiomaticValueKnowledge NonEmptyString x
@@ -80,14 +81,14 @@ proveNonEmptyString x =
 
 {-| Make a trimmed string from a string. Note: will trim a non-trimmed string
 -}
-mkTrimmedString : String -> WithKnowledge String TrimmedString NoKnowledge NoKnowledge
+mkTrimmedString : String -> WithKnowledge String TrimmedString NoDomainKnowledge NoNamedKnowledge
 mkTrimmedString =
     axiomaticValueKnowledge TrimmedString << String.trim
 
 
 {-| Prove that a string is trimmed
 -}
-proveTrimmedString : String -> Maybe (WithKnowledge String TrimmedString NoKnowledge NoKnowledge)
+proveTrimmedString : String -> Maybe (WithKnowledge String TrimmedString NoDomainKnowledge NoNamedKnowledge)
 proveTrimmedString x =
     if String.trim x == x then
         Just <| axiomaticValueKnowledge TrimmedString x
@@ -98,14 +99,14 @@ proveTrimmedString x =
 
 {-| Prove that a string is both non-empty and trimmed
 -}
-proveNonEmptyTrimmedString : String -> Maybe (WithKnowledge String NonEmptyTrimmedString NoKnowledge NoKnowledge)
+proveNonEmptyTrimmedString : String -> Maybe (WithKnowledge String NonEmptyTrimmedString NoDomainKnowledge NoNamedKnowledge)
 proveNonEmptyTrimmedString =
     v_makeAnd proveNonEmptyString proveTrimmedString
 
 
 {-| Get the length of a non-empty string
 -}
-lengthOfNonEmptyString : WithKnowledge String NonEmptyString NoKnowledge NoKnowledge -> WithKnowledge Int Positive NoKnowledge NoKnowledge
+lengthOfNonEmptyString : WithKnowledge String NonEmptyString NoDomainKnowledge NoNamedKnowledge -> WithKnowledge Int Positive NoDomainKnowledge NoNamedKnowledge
 lengthOfNonEmptyString x =
     case provePositive << String.length <| forget x of
         Just p ->

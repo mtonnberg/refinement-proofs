@@ -1,9 +1,9 @@
-module RefinementProofs.TestNamed3 exposing (getBrandToPromote)
+module RefinementProofs.Temp.TestNamed2 exposing (getBrandToPromote)
 
 import Dict exposing (Dict)
 import RefinementProofs.Proofs.StringProofs exposing (NonEmptyString, TrimmedString, proveNonEmptyString, proveTrimmedString)
-import RefinementProofs.TestNamed exposing (IsInDict, Positive, proveKeyIsInDict, provePositive2, takeValueFromDict2)
-import RefinementProofs.WithKnowledge
+import RefinementProofs.Temp.TestNamed exposing (IsInDict, Positive, proveKeyIsInDict, provePositive2, takeValueFromDict2)
+import RefinementProofs.Knowledge
     exposing
         ( A
         , And
@@ -11,10 +11,10 @@ import RefinementProofs.WithKnowledge
         , NoNamedKnowledge
         , Proof
         , WithKnowledge
+        , axiomaticallyAddDomainKnowledge
         , attachNamedKnowledge
         , axiomaticValueKnowledge
-        , axiomaticallyAddDomainKnowledge
-        , d_andIsFlippable
+        , andIsFlippable
         , d_since
         , forget
         , forgetNamedKnowledge
@@ -59,7 +59,7 @@ handle :
     -> A Int key
     -> Maybe (WithKnowledge String (And TrimmedString NonEmptyString) (And ASupportedCarBrand ATopTierBrandToday) NoNamedKnowledge)
 handle namedDict namedWantedKey =
-    Maybe.map (d_since d_andIsFlippable << carDictToDomainKnowledge namedDict namedWantedKey) <| handleInner namedDict namedWantedKey
+    Maybe.map (d_since andIsFlippable << carDictToDomainKnowledge namedDict namedWantedKey) <| handleInner namedDict namedWantedKey
 
 
 handleInner :
@@ -67,32 +67,37 @@ handleInner :
     -> A Int key
     -> Maybe (WithKnowledge String (And TrimmedString NonEmptyString) ATopTierBrandToday (IsInDict key dict))
 handleInner namedDict namedWantedKey =
-    case ( withName provePositive2 namedWantedKey, proveKeyIsInDict namedWantedKey namedDict ) of
-        ( Just namedPositive, Just isInDictProof ) ->
-            let
-                keyWithAllNeededProofs : WithKnowledge (A Int key) Positive NoDomainKnowledge (IsInDict key dict)
-                keyWithAllNeededProofs =
-                    setNamedKnowledge namedPositive isInDictProof
+    case withName provePositive2 namedWantedKey of
+        Nothing ->
+            Nothing
 
-                stringCandidate =
-                    takeValueFromDict2 keyWithAllNeededProofs namedDict
-            in
-            case v_makeAnd proveTrimmedString proveNonEmptyString stringCandidate of
+        Just namedPositive ->
+            case proveKeyIsInDict (forget namedPositive) namedDict of
                 Nothing ->
                     Nothing
 
-                Just s ->
+                Just isInDictProof ->
                     let
-                        topTierBrands =
-                            [ "Toyota", "CoolCar 3000" ]
+                        keyWithAllNeededProofs : WithKnowledge (A Int key) Positive NoDomainKnowledge (IsInDict key dict)
+                        keyWithAllNeededProofs =
+                            setNamedKnowledge namedPositive isInDictProof
+
+                        stringCandidate =
+                            takeValueFromDict2 keyWithAllNeededProofs namedDict
                     in
-                    if List.member stringCandidate topTierBrands then
-                        Just <|
-                            axiomaticallySetDomainKnowledge ATopTierBrandToday <|
-                                setNamedKnowledge s isInDictProof
+                    case v_makeAnd proveTrimmedString proveNonEmptyString stringCandidate of
+                        Nothing ->
+                            Nothing
 
-                    else
-                        Nothing
+                        Just s ->
+                            let
+                                topTierBrands =
+                                    [ "Toyota", "CoolCar 3000" ]
+                            in
+                            if List.member stringCandidate topTierBrands then
+                                Just <|
+                                    axiomaticallySetDomainKnowledge ATopTierBrandToday <|
+                                        setNamedKnowledge s isInDictProof
 
-        _ ->
-            Nothing
+                            else
+                                Nothing

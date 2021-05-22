@@ -41,10 +41,11 @@ module RefinementProofs.Proofs.NumberProofs exposing
 
 -}
 
-import RefinementProofs.WithKnowledge
+import RefinementProofs.Knowledge
     exposing
         ( Implies
-        , NoKnowledge
+        , NoDomainKnowledge
+        , NoNamedKnowledge
         , Not
         , Or
         , WithKnowledge(..)
@@ -68,7 +69,7 @@ type Zero
     = Zero
 
 
-{-| type alias for `Or Zero Positive`. If used with an Int this the number is 0,1,2,3,....
+{-| type alias for `Or Zero Positive`. If used with an Int this the number is 0 or 1 or 2 or 3....
 -}
 type alias ZeroOrGreater =
     Or Zero Positive
@@ -94,7 +95,7 @@ type alias Odd =
 
 {-| Prove that a number equals to zero
 -}
-proveZero : number -> Maybe (WithKnowledge number Zero NoKnowledge NoKnowledge)
+proveZero : number -> Maybe (WithKnowledge number Zero NoDomainKnowledge NoNamedKnowledge)
 proveZero x =
     if x == 0 then
         Just <| axiomaticValueKnowledge Zero x
@@ -105,7 +106,7 @@ proveZero x =
 
 {-| Prove that a number is positive (>0)
 -}
-provePositive : number -> Maybe (WithKnowledge number Positive NoKnowledge NoKnowledge)
+provePositive : number -> Maybe (WithKnowledge number Positive NoDomainKnowledge NoNamedKnowledge)
 provePositive x =
     if x > 0 then
         Just <| axiomaticValueKnowledge Positive x
@@ -116,21 +117,21 @@ provePositive x =
 
 {-| Prove that a number is either zero or greater
 -}
-proveZeroOrGreater : number -> Maybe (WithKnowledge number ZeroOrGreater NoKnowledge NoKnowledge)
+proveZeroOrGreater : number -> Maybe (WithKnowledge number ZeroOrGreater NoDomainKnowledge NoNamedKnowledge)
 proveZeroOrGreater =
     v_makeOr proveZero provePositive
 
 
 {-| Prove a number is negative
 -}
-proveNegative : number -> Maybe (WithKnowledge number Negative NoKnowledge NoKnowledge)
+proveNegative : number -> Maybe (WithKnowledge number Negative NoDomainKnowledge NoNamedKnowledge)
 proveNegative =
     v_inverse (or Zero Positive) proveZeroOrGreater
 
 
 {-| Prove that a number is even
 -}
-proveEven : Int -> Maybe (WithKnowledge Int Even NoKnowledge NoKnowledge)
+proveEven : Int -> Maybe (WithKnowledge Int Even NoDomainKnowledge NoNamedKnowledge)
 proveEven x =
     if modBy 2 x == 0 then
         Just <| axiomaticValueKnowledge Even x
@@ -141,7 +142,7 @@ proveEven x =
 
 {-| Prove that a number is odd
 -}
-proveOdd : Int -> Maybe (WithKnowledge Int Odd NoKnowledge NoKnowledge)
+proveOdd : Int -> Maybe (WithKnowledge Int Odd NoDomainKnowledge NoNamedKnowledge)
 proveOdd =
     v_inverse Even proveEven
 

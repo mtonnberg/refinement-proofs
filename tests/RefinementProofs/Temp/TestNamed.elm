@@ -1,4 +1,4 @@
-module RefinementProofs.TestNamed exposing
+module RefinementProofs.Temp.TestNamed exposing
     ( IsInDict
     , Positive
     , divide2
@@ -9,10 +9,9 @@ module RefinementProofs.TestNamed exposing
     )
 
 import Dict exposing (Dict)
-import RefinementProofs.WithKnowledge
+import RefinementProofs.Knowledge
     exposing
         ( A
-        , NoKnowledge
         , Proof
         , WithKnowledge
         , axiomaticValueKnowledge
@@ -21,6 +20,8 @@ import RefinementProofs.WithKnowledge
         , raw
         , the
         )
+import RefinementProofs.Knowledge exposing (NoDomainKnowledge)
+import RefinementProofs.Knowledge exposing (NoNamedKnowledge)
 
 
 type Positive
@@ -36,7 +37,7 @@ divide2 x ty =
     toFloat x / (toFloat <| forget ty)
 
 
-provePositive2 : number -> Maybe (WithKnowledge number Positive NoKnowledge NoKnowledge)
+provePositive2 : number -> Maybe (WithKnowledge number Positive NoDomainKnowledge NoNamedKnowledge)
 provePositive2 tx =
     if tx > 0 then
         Just (axiomaticValueKnowledge Positive tx)

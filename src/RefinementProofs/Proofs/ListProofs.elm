@@ -23,21 +23,22 @@ module RefinementProofs.Proofs.ListProofs exposing
 
 -}
 
-import RefinementProofs.Proofs.NumberProofs
-    exposing
-        ( Positive
-        , provePositive
-        )
-import RefinementProofs.WithKnowledge
+import RefinementProofs.Knowledge
     exposing
         ( A
-        , NoKnowledge
+        , NoDomainKnowledge
+        , NoNamedKnowledge
         , Proof
         , WithKnowledge(..)
         , axiomaticValueKnowledge
         , forget
         , raw
         , the
+        )
+import RefinementProofs.Proofs.NumberProofs
+    exposing
+        ( Positive
+        , provePositive
         )
 
 
@@ -61,7 +62,7 @@ type SortedList
 
 {-| Prove that a list is non-empty
 -}
-proveNonEmptyList : List a -> Maybe (WithKnowledge (List a) NonEmptyList NoKnowledge NoKnowledge)
+proveNonEmptyList : List a -> Maybe (WithKnowledge (List a) NonEmptyList NoDomainKnowledge NoNamedKnowledge)
 proveNonEmptyList x =
     if List.length x > 0 then
         Just <| axiomaticValueKnowledge NonEmptyList x
@@ -72,7 +73,7 @@ proveNonEmptyList x =
 
 {-| Make a sorted list.
 -}
-mkSortedList : List comparable -> WithKnowledge (List comparable) SortedList NoKnowledge NoKnowledge
+mkSortedList : List comparable -> WithKnowledge (List comparable) SortedList NoDomainKnowledge NoNamedKnowledge
 mkSortedList =
     axiomaticValueKnowledge SortedList << List.sort
 
@@ -91,14 +92,17 @@ head xs =
 
 {-| Map over a non-empty list
 -}
-nonEmptyListMap : (a -> b) -> WithKnowledge (List a) NonEmptyList NoKnowledge NoKnowledge -> WithKnowledge (List b) NonEmptyList NoKnowledge NoKnowledge
+nonEmptyListMap :
+    (a -> b)
+    -> WithKnowledge (List a) NonEmptyList NoDomainKnowledge NoNamedKnowledge
+    -> WithKnowledge (List b) NonEmptyList NoDomainKnowledge NoNamedKnowledge
 nonEmptyListMap f xs =
     axiomaticValueKnowledge NonEmptyList <| List.map f <| forget xs
 
 
 {-| Get the length of a non-empty list
 -}
-lengthOfNonEmptyList : WithKnowledge (List a) NonEmptyList d n -> WithKnowledge Int Positive NoKnowledge NoKnowledge
+lengthOfNonEmptyList : WithKnowledge (List a) NonEmptyList d n -> WithKnowledge Int Positive NoDomainKnowledge NoNamedKnowledge
 lengthOfNonEmptyList x =
     case provePositive << List.length <| forget x of
         Just p ->
