@@ -169,7 +169,7 @@ handleInner namedDict namedWantedKey =
                         topTierBrands =
                             [ "Toyota", "CoolCar 3000" ]
                     in
-                    if List.member (forget stringCandidate) topTierBrands && (the namedWantedKey) < 6 then
+                    if List.member (forget stringCandidate) topTierBrands && the namedWantedKey < 6 then
                         Just <|
                             axiomaticallySetDomainKnowledge ATopTierBrandToday <|
                                 setNamedKnowledge isInDictProof s
