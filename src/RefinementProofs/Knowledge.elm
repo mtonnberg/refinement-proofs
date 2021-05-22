@@ -2,9 +2,8 @@ module RefinementProofs.Knowledge exposing
     ( WithKnowledge
     , And, Or, Not, XOr, Implies
     , or, and, not
-    , withNoKnowledge
     , forget, imply
-    , A, NoDomainKnowledge, NoNamedKnowledge, NoValueKnowledge, Proof, andIsFlippable, attachNamedKnowledge, axiomaticDomainKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, axiomaticallyAddDomainKnowledge, axiomaticallySetDomainKnowledge, d_modusPonens, d_since, detachNamedKnowledge, forgetNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, setNamedKnowledge, the, v_elimAndL, v_elimAndR, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName
+    , A, NoDomainKnowledge, NoNamedKnowledge, NoValueKnowledge, Proof, andIsFlippable, attachNamedKnowledge, axiomaticDomainKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, axiomaticallyAddDomainKnowledge, axiomaticallySetDomainKnowledge, d_modusPonens, d_since, detachNamedKnowledge, forgetNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, setNamedKnowledge, the, v_elimAndL, v_elimAndR, v_introAnd, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName, withNoKnowledge
     )
 
 {-| This library allows for more knowledge to be captured in the types, for both library writers and application coders.
@@ -37,17 +36,18 @@ module RefinementProofs.Knowledge exposing
 `valueKnowledge`, The actual value of `value` satisfies everything in `valueKnowledge`. For example that a string is not empty
 
 `domainKnowledge`:
-- Knowledge that can be difficult to formally capture but that we have checked somewhere in the code. For example if the animal is cute (whatever that means in our domain)
-- Also it allows us to return knowledge that is either previously named or captured. (There is a compiler reason for why we cannot return named knowledge outsidet the context given by the ```name``` function)
 
-`namedKnowledge`, Formally capture knowledge of something. Note that this can be knowledge of other values, since the type system keeps track of it. ***If the rules below are followed***
+  - Knowledge that can be difficult to formally capture but that we have checked somewhere in the code. For example if the animal is cute (whatever that means in our domain)
+  - Also it allows us to return knowledge that is either previously named or captured. (There is a compiler reason for why we cannot return named knowledge outsidet the context given by the `name` function)
+
+`namedKnowledge`, Formally capture knowledge of something. Note that this can be knowledge of other values, since the type system keeps track of it. _**If the rules below are followed**_
 
 
 #### Important!
 
-- The constructors for all captured knowledge must _**never**_ be exported! That is constructors akin to `Positive` or `NonEmpty`. _**It is not unlikely that you will add your own types for captured knowledge (perhaps `IsOneOfMyFavoriteAnimals`), when you do - keep the constructors hidden, keep constructors safe**_
-- Do not use a lambda for the function input to ***```name```***. It must be a function with an ***explicit function signature***!
-- Make sure that ***all names*** are correct and ***unique*** (excluding NamedKnowledge and per function signature), that will probably ***break*** the type safety. There are a couple of safety mechanisms but do not count on them.
+  - The constructors for all captured knowledge must _**never**_ be exported! That is constructors akin to `Positive` or `NonEmpty`. _**It is not unlikely that you will add your own types for captured knowledge (perhaps `IsOneOfMyFavoriteAnimals`), when you do - keep the constructors hidden, keep constructors safe**_
+  - Do not use a lambda for the function input to _**`name`**_. It must be a function with an _**explicit function signature**_!
+  - Make sure that _**all names**_ are correct and _**unique**_ (excluding NamedKnowledge and per function signature), that will probably _**break**_ the type safety. There are a couple of safety mechanisms but do not count on them.
 
 
 #### More info
@@ -118,10 +118,13 @@ type Or p1 p2
 type Proof p
     = Proof
 
+
 {-| Used to wrap a value in a WithKnowledge type with no associated knowledge
 -}
 withNoKnowledge : a -> WithKnowledge a NoValueKnowledge NoDomainKnowledge NoNamedKnowledge
-withNoKnowledge x = WithKnowledge x
+withNoKnowledge x =
+    WithKnowledge x
+
 
 {-| Used by library writers to create proofs for named knowledge with non-exported constructors.
 Remember, the library/module RefinementProofs.constructors must not be exported!
@@ -197,7 +200,9 @@ raw =
 
 
 ### Do not use a lambda for the function input. It must be a function with an explicit function signature!
-### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will ***break*** the type safety.
+
+
+### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will _**break**_ the type safety.
 
 -}
 name : a -> (A a c -> b) -> b
@@ -209,7 +214,9 @@ name x f =
 
 
 ### Do not use a lambda for the function input. It must be a function with an explicit function signature!
-### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will ***break*** the type safety.
+
+
+### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will _**break**_ the type safety.
 
 -}
 name2 : a1 -> a2 -> (A a1 c1 -> A a2 c2 -> b) -> b
@@ -420,6 +427,18 @@ v_makeAnd f g x =
     case ( f x, g x ) of
         ( Just _, Just _ ) ->
             Just <| axiomInternal x
+
+        _ ->
+            Nothing
+
+
+{-| For value knowledge. Introduce another Value knowledge
+-}
+v_introAnd : (a -> Maybe (WithKnowledge a v1 d b)) -> WithKnowledge a v2 d b -> Maybe (WithKnowledge a (And v2 v1) d b)
+v_introAnd f x =
+    case f <| forget x of
+        Just _ ->
+            Just <| axiomInternal <| forget x
 
         _ ->
             Nothing
