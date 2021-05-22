@@ -47,7 +47,7 @@ testNaming1 =
                     case proveKeyIsInDict v d of
                         Just proofOfMembership ->
                             Debug.log "hurra" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge v) d
-                            -- Debug.log "hurra" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge vI) d --will not compile :) 
+                            -- Debug.log "protected by the typesystem :)" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge vI) d --will not compile :) 
 
                         Nothing ->
                             Debug.log "Could not prove" <| 1
@@ -88,7 +88,7 @@ mistakeDeepInTheCallChain d v vI =
                     case proveKeyIsInDict v d of
                         Just proofOfMembership ->
                             Debug.log "hurra" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge v) d
-                            -- Debug.log "hurra" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge vI) d --will not compile :) 
+                            -- Debug.log "protected by the typesystem :)" <| takeValueFromDict (setNamedKnowledge proofOfMembership <| withNoKnowledge vI) d --will not compile :) 
 
                         Nothing ->
                             Debug.log "Could not prove" <| 1
