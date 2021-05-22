@@ -34,16 +34,20 @@ module RefinementProofs.Knowledge exposing
 
 {-| WithKnowledge make it possible to express stuff we know about `value` and more:
 
-`valueKnowledge` The actual value of `value` satisfies everything in `valueKnowledge`. For example that a string is not empty
+`valueKnowledge`, The actual value of `value` satisfies everything in `valueKnowledge`. For example that a string is not empty
 
-`domainKnowledge` Knowledge that can be difficult to formally capture but that we have checked somewhere in the code. For example if the animal is cute (whatever that means in our domain)
+`domainKnowledge`:
+- Knowledge that can be difficult to formally capture but that we have checked somewhere in the code. For example if the animal is cute (whatever that means in our domain)
+- Also it allows us to return knowledge that is either previously named or captured. (There is a compiler reason for why we cannot return named knowledge outsidet the context given by the ```name``` function)
 
-`namedKnowledge` Formally capture knowledge of something. Note that this can be knowledge of other values, since the type system keeps track of it.
+`namedKnowledge`, Formally capture knowledge of something. Note that this can be knowledge of other values, since the type system keeps track of it. ***If the rules below are followed***
 
 
-#### Important
+#### Important!
 
-The constructors for all captured knowledge must _**never**_ be exported! That is constructors akin to `Positive` or `NonEmpty`. _**It is not unlikely that you will add your own types for captured knowledge (perhaps `IsOneOfMyFavoriteAnimals`), when you do - keep the constructors hidden, keep constructors safe**_
+- The constructors for all captured knowledge must _**never**_ be exported! That is constructors akin to `Positive` or `NonEmpty`. _**It is not unlikely that you will add your own types for captured knowledge (perhaps `IsOneOfMyFavoriteAnimals`), when you do - keep the constructors hidden, keep constructors safe**_
+- Do not use a lambda for the function input to ***```name```***. It must be a function with an ***explicit function signature***!
+- Make sure that ***all names*** are correct and ***unique*** (excluding NamedKnowledge and per function signature), that will probably ***break*** the type safety. There are a couple of safety mechanisms but do not count on them.
 
 
 #### More info
