@@ -2,6 +2,8 @@ module RefinementProofs.Knowledge exposing
     ( WithKnowledge
     , And, Or, Not, XOr, Implies
     , or, and, not
+    , forgetNamedKnowledgeAndName
+    , name2WithKnowledge
     , forget, imply
     , A, NoDomainKnowledge, NoNamedKnowledge, NoValueKnowledge, Proof, andIsFlippable, attachNamedKnowledge, axiomaticDomainKnowledge, axiomaticNamedKnowledge, axiomaticValueKnowledge, axiomaticallyAddDomainKnowledge, axiomaticallySetDomainKnowledge, d_modusPonens, d_since, detachNamedKnowledge, forgetNamedKnowledge, makeProof, n_elimAndL, n_elimAndR, n_introOrL, n_introOrR, n_inverse, n_makeAnd, n_makeOr, n_modusPonens, n_modusTollens, n_since, n_sinceNot, name, name2, raw, setNamedKnowledge, the, v_elimAndL, v_elimAndR, v_introAnd, v_introOrL, v_introOrR, v_inverse, v_makeAnd, v_makeOr, v_modusPonens, v_modusTollens, v_since, v_sinceNot, withName, withNoKnowledge
     )
@@ -47,7 +49,7 @@ module RefinementProofs.Knowledge exposing
 
   - The constructors for all captured knowledge must _**never**_ be exported! That is constructors akin to `Positive` or `NonEmpty`. _**It is not unlikely that you will add your own types for captured knowledge (perhaps `IsOneOfMyFavoriteAnimals`), when you do - keep the constructors hidden, keep constructors safe**_
   - Do not use a lambda for the function input to _**`name`**_. It must be a function with an _**explicit function signature**_!
-  - Make sure that _**all names**_ are correct and _**unique**_ (excluding NamedKnowledge and per function signature), that will probably _**break**_ the type safety. There are a couple of safety mechanisms but do not count on them.
+  - Make sure that _**all names**_ are correct and _**unique**_ (excluding NamedKnowledge, the return value and per function signature), that will probably _**break**_ the type safety. There are a couple of safety mechanisms but do not count on them.
 
 
 #### More info
@@ -229,6 +231,25 @@ name2 x y f =
                 )
         )
 
+{-| This is used to name two types to allow us to express relations between different types. For example that an value is a key in a given dictonary.
+
+
+### Do not use a lambda for the function input. It must be a function with an explicit function signature!
+
+
+### Make sure that all names are correct and no two values (excluding NamedKnowledge) uses the same two name, that will _**break**_ the type safety.
+
+-}
+name2WithKnowledge : WithKnowledge a1 v1 d1 n1 -> WithKnowledge a2 v2 d2 n2 -> (WithKnowledge (A a1 an1) v1 d1 n1 -> WithKnowledge (A a2 an2) v2 d2 n2  -> b) -> b
+name2WithKnowledge x y f =
+    name (forget x)
+        (\named1 ->
+            name (forget y)
+                (\named2 ->
+                    f (axiomInternal named1) (axiomInternal named2)
+                )
+        )
+
 
 {-| This is used to use functions that add knowledge to a value without a name to work when we have a name attached.
 -}
@@ -401,9 +422,15 @@ forget (WithKnowledge x) =
 
 {-| Remove named knowledge. This is always safe and a library writer should always expect and allow its users to do this.
 -}
-forgetNamedKnowledge : WithKnowledge a v c n -> WithKnowledge a v c NoKnowledge
+forgetNamedKnowledge : WithKnowledge a v c n -> WithKnowledge a v c NoNamedKnowledge
 forgetNamedKnowledge (WithKnowledge x) =
     WithKnowledge x
+
+{-| Remove named knowledge along with the name. This is always safe and a library writer should always expect and allow its users to do this.
+-}
+forgetNamedKnowledgeAndName : WithKnowledge (A a name) v c n -> WithKnowledge a v c NoNamedKnowledge
+forgetNamedKnowledgeAndName (WithKnowledge x) =
+    WithKnowledge <| the x
 
 
 {-| For value knowledge. If a is proven to hold property p1 then classic logic gives that a holds either p1 or p2
